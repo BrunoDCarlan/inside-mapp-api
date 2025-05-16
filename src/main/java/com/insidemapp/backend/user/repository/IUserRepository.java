@@ -1,9 +1,9 @@
 package com.insidemapp.backend.user.repository;
 
-import com.insidemapp.backend.navegacao.model.Rota;
+import com.insidemapp.backend.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface IUserRepository extends JpaRepository<Rota, Integer> {
+public interface IUserRepository extends JpaRepository<User, Integer> {
 }

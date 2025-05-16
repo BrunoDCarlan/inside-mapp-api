@@ -4,6 +4,8 @@ import com.insidemapp.backend.estabelecimento.model.PontoDeInteresse;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "COMPARTILHAMENTO")
 @Data
@@ -23,5 +25,5 @@ public class Compartilhamento {
     private String linkGerado;
 
     @Column(name = "data_compartilhamento")
-    private PontoDeInteresse dataCompartilhamento;
+    private LocalDateTime dataCompartilhamento;
 }
