@@ -26,4 +26,9 @@ public class User {
 
     @Column(name = "criado_em")
     private LocalDateTime criadoEm;
+
+    @PrePersist
+    protected void onCreate() {
+        this.criadoEm = LocalDateTime.now();
+    }
 }
