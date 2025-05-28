@@ -1,6 +1,7 @@
 package com.insidemapp.backend.user.controller;
 
 import com.insidemapp.backend.user.dto.LoginRequestDTO;
+import com.insidemapp.backend.user.dto.LoginResponseDTO;
 import com.insidemapp.backend.user.model.User;
 import com.insidemapp.backend.user.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -19,8 +20,14 @@ public class UserController {
     }
 
     @PostMapping("/cadastrar")
-    public ResponseEntity<User> criar(@RequestBody User user) {
-        return ResponseEntity.ok(userService.criarUsuario(user));
+    public ResponseEntity<?> criar(@RequestBody User user) {
+        User usuario = userService.criarUsuario(user);
+
+        if (usuario != null) {
+            return ResponseEntity.ok(new LoginResponseDTO("Cadastro realizado com sucesso", usuario));
+        } else {
+            return ResponseEntity.internalServerError().body("Erro interno ao cadastrar usuário.");
+        }
     }
 
     @GetMapping("/listarusuarios")
@@ -29,11 +36,11 @@ public class UserController {
     }
 
     @PostMapping("/entrar")
-    public ResponseEntity<String> login(@RequestBody LoginRequestDTO login) {
-        boolean sucesso = userService.autenticar(login.getEmail(), login.getSenha());
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO login) {
+        User usuario = userService.buscarPorEmailESenha(login.getEmail(), login.getSenha());
 
-        if (sucesso) {
-            return ResponseEntity.ok("Login realizado com sucesso!");
+        if (usuario != null) {
+            return ResponseEntity.ok(new LoginResponseDTO("Login realizado com sucesso", usuario));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas.");
         }

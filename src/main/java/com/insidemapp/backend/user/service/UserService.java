@@ -29,7 +29,14 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public boolean  autenticar(String email, String senha) {
+    public User buscarPorEmailESenha(String email, String senha) {
+        boolean autenticado = autenticar(email, senha);
+        if (!autenticado) return null;
+
+        return userRepository.findByEmail(email).orElse(null);
+    }
+
+    private boolean  autenticar(String email, String senha) {
         Optional<User> usuario = userRepository.findByEmail(email);
 
         if (usuario.isEmpty()) {
@@ -38,4 +45,5 @@ public class UserService {
 
         return passwordEncoder.matches(senha, usuario.get().getSenhaHash());
     }
+
 }

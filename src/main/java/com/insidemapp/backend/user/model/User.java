@@ -1,5 +1,6 @@
 package com.insidemapp.backend.user.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private Integer id;
 
     @Column(nullable = false)
@@ -19,12 +21,14 @@ public class User {
     @Column(nullable = false)
     private String email;
 
+    @JsonIgnore
     @Column(name = "senha_hash", nullable = false)
     private String senhaHash;
 
     private String tipo;
 
     @Column(name = "criado_em")
+    @JsonIgnore
     private LocalDateTime criadoEm;
 
     @PrePersist
