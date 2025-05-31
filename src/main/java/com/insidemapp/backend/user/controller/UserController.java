@@ -4,6 +4,7 @@ import com.insidemapp.backend.user.dto.LoginRequestDTO;
 import com.insidemapp.backend.user.dto.LoginResponseDTO;
 import com.insidemapp.backend.user.model.User;
 import com.insidemapp.backend.user.service.UserService;
+import com.insidemapp.backend.infra.security.JwtTokenProvider;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,10 +14,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-    private final UserService userService;
 
-    public UserController(UserService userService) {
+    private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
+
+    public UserController(UserService userService, JwtTokenProvider jwtTokenProvider) {
         this.userService = userService;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @PostMapping("/cadastrar")
@@ -24,15 +28,11 @@ public class UserController {
         User usuario = userService.criarUsuario(user);
 
         if (usuario != null) {
-            return ResponseEntity.ok(new LoginResponseDTO("Cadastro realizado com sucesso", usuario));
+            String token = jwtTokenProvider.generateToken(usuario.getEmail(), List.of(usuario.getTipo()));
+            return ResponseEntity.ok(new LoginResponseDTO("Cadastro realizado com sucesso", usuario, token));
         } else {
             return ResponseEntity.internalServerError().body("Erro interno ao cadastrar usuário.");
         }
-    }
-
-    @GetMapping("/listarusuarios")
-    public ResponseEntity<List<User>> listar() {
-        return ResponseEntity.ok(userService.buscarTodos());
     }
 
     @PostMapping("/entrar")
@@ -40,9 +40,21 @@ public class UserController {
         User usuario = userService.buscarPorEmailESenha(login.getEmail(), login.getSenha());
 
         if (usuario != null) {
-            return ResponseEntity.ok(new LoginResponseDTO("Login realizado com sucesso", usuario));
+            String token = jwtTokenProvider.generateToken(usuario.getEmail(), List.of("ROLE_USER"));
+            return ResponseEntity.ok(new LoginResponseDTO("Login realizado com sucesso", usuario, token));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas.");
         }
+    }
+
+    @PostMapping("/guest")
+    public ResponseEntity<LoginResponseDTO> entrarComoConvidado() {
+        String token = jwtTokenProvider.generateToken("guest", List.of("ROLE_GUEST"));
+        return ResponseEntity.ok(new LoginResponseDTO("Login como convidado realizado com sucesso", token));
+    }
+
+    @GetMapping("/listarusuarios")
+    public ResponseEntity<List<User>> listar() {
+        return ResponseEntity.ok(userService.buscarTodos());
     }
 }
