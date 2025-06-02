@@ -2,6 +2,7 @@ package com.insidemapp.backend.user.controller;
 
 import com.insidemapp.backend.user.dto.LoginRequestDTO;
 import com.insidemapp.backend.user.dto.LoginResponseDTO;
+import com.insidemapp.backend.user.dto.UserRegisterDTO;
 import com.insidemapp.backend.user.model.User;
 import com.insidemapp.backend.user.service.UserService;
 import com.insidemapp.backend.infra.security.JwtTokenProvider;
@@ -24,8 +25,14 @@ public class UserController {
     }
 
     @PostMapping("/cadastrar")
-    public ResponseEntity<?> criar(@RequestBody User user) {
-        User usuario = userService.criarUsuario(user);
+    public ResponseEntity<?> criar(@RequestBody UserRegisterDTO dto) {
+        User usuario = new User();
+        usuario.setUsername(dto.getUsername());
+        usuario.setEmail(dto.getEmail());
+        usuario.setSenhaHash(dto.getSenhaHash());
+        usuario.setTipo(dto.getTipo());
+
+        usuario = userService.criarUsuario(usuario);
 
         if (usuario != null) {
             String token = jwtTokenProvider.generateToken(usuario.getEmail(), List.of(usuario.getTipo()));
